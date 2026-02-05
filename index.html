@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <title>Mani darbi</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+
+            <h3 class="text-center mb-4">Mani darbi</h3>
+
+            <!-- Input + Button -->
+            <div class="input-group mb-3">
+                <input type="text" id="task-input" class="form-control" placeholder="Ieraksti darbu">
+                <button class="btn btn-primary" onclick="addTask()">Pievienot</button>
+            </div>
+
+            <!-- Task list -->
+            <ul id="task-list" class="list-group"></ul>
+
+        </div>
+    </div>
+</div>
+
+<script> let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    const taskList = document.getElementById("task-list");
+    const taskInput = document.getElementById("task-input");
+
+    // Ielādē saglabātos darbus
+    tasks.forEach(task => createTaskElement(task));
+
+    function addTask() {
+        const text = taskInput.value.trim();
+        if (text === "") return;
+
+        tasks.push(text);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        createTaskElement(text);
+        taskInput.value = "";
+    }
+
+    function createTaskElement(text) {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+            ${text}
+            <button class="btn btn-danger btn-sm">Dzēst</button>
+        `;
+
+        li.querySelector("button").onclick = function () {
+            taskList.removeChild(li);
+            tasks = tasks.filter(t => t !== text);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        };
+
+        taskList.appendChild(li);
+    }</script>
+
+</body>
+</html>
