@@ -12,11 +12,19 @@
 <div class="container mt-5">
     <div class="card mx-auto" style="max-width: 500px;">
         <div class="card-body">
-
-            <h3 class="text-center mb-4">Mani darbi</h3>
+<h3 class="text-center mb-4">Todo List V2</h3>
 
             <!-- Input + Button -->
             <div class="input-group mb-3">
+                <select id="priority" class="form-select">
+
+<option value="bg-danger">Svarīgi</option>
+
+<option value="bg-warning text-dark">Vidēji</option>
+
+<option value="bg-success">Zema</option>
+
+</select>
                 <input type="text" id="task-input" class="form-control" placeholder="Ieraksti darbu">
                 <button class="btn btn-primary" onclick="addTask()">Pievienot</button>
             </div>
