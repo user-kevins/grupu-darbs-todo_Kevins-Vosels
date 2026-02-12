@@ -3,74 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <title>Mani darbi</title>
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 
 <div class="container mt-5">
-    <div class="card mx-auto" style="max-width: 500px;">
-        <div class="card-body">
-<h3 class="text-center mb-4">Todo List V2</h3>
+    <div class="card mx-auto" style="max-width: 600px;"> <div class="card-body">
+            <h3 class="text-center mb-4">Todo List V2</h3>
 
-            <!-- Input + Button -->
             <div class="input-group mb-3">
-                <select id="priority" class="form-select">
-
-<option value="bg-danger">Svarīgi</option>
-
-<option value="bg-warning text-dark">Vidēji</option>
-
-<option value="bg-success">Zema</option>
-
-</select>
-                <input type="text" id="task-input" class="form-control" placeholder="Ieraksti darbu">
+                <select id="priority" class="form-select" style="max-width: 120px;">
+                    <option value="bg-danger">Svarīgi</option>
+                    <option value="bg-warning text-dark">Vidēji</option> <option value="bg-secondary">Zema</option> </select>
+                <input type="text" id="task-input" class="form-control" placeholder="Ieraksti darbu...">
                 <button class="btn btn-primary" onclick="addTask()">Pievienot</button>
             </div>
 
-            <!-- Task list -->
             <ul id="task-list" class="list-group"></ul>
 
         </div>
     </div>
 </div>
 
-<script> let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+<script>
+    // Mēģinām ielasīt datus. Ja tie ir vecie (tikai teksts), pārvēršam par tukšu masīvu, lai nerastos kļūdas
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
     const taskList = document.getElementById("task-list");
     const taskInput = document.getElementById("task-input");
+    const priorityInput = document.getElementById("priority");
 
     // Ielādē saglabātos darbus
-    tasks.forEach(task => createTaskElement(task));
+    renderTasks();
 
     function addTask() {
         const text = taskInput.value.trim();
         if (text === "") return;
 
-        tasks.push(text);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
+        // 1. Iegūstam izvēlēto krāsu un nosaukumu no <select>
+        const selectedOption = priorityInput.options[priorityInput.selectedIndex];
+        const colorClass = selectedOption.value;
+        const priorityLabel = selectedOption.text;
 
-        createTaskElement(text);
+        // 2. Izveidojam objektu, nevis tikai tekstu
+        const taskObj = {
+            text: text,
+            color: colorClass,
+            label: priorityLabel
+        };
+
+        tasks.push(taskObj);
+        saveAndRender();
+        
         taskInput.value = "";
     }
 
-    function createTaskElement(text) {
+    // Funkcija, kas saglabā un pārzīmē sarakstu
+    function saveAndRender() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function renderTasks() {
+        taskList.innerHTML = ""; // Notīra sarakstu pirms zīmēšanas
+        tasks.forEach((task, index) => createTaskElement(task, index));
+    }
+
+    function createTaskElement(task, index) {
+        // Pārbaude, lai vecā tipa dati (tikai strings) nesalauztu lapu
+        const taskText = task.text || task; 
+        const taskColor = task.color || "bg-secondary";
+        const taskLabel = task.label || "Uzdevums";
+
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center";
+        
+        // HTML struktūra, lai izskatītos kā attēlā (Badge + Teksts)
         li.innerHTML = `
-            ${text}
-            <button class="btn btn-danger btn-sm">Dzēst</button>
+            <div class="d-flex align-items-center">
+                <span class="badge ${taskColor} me-2 p-2">${taskLabel}</span>
+                <span class="task-text">${taskText}</span>
+            </div>
+            <button class="btn btn-outline-danger btn-sm">Dzēst</button>
         `;
 
+        // Pievieno svītrošanas funkcionalitāti uzklikšķinot uz teksta
+        li.querySelector(".task-text").onclick = function() {
+            this.classList.toggle("text-decoration-line-through");
+        };
+
+        // Dzēšanas loģika
         li.querySelector("button").onclick = function () {
-            taskList.removeChild(li);
-            tasks = tasks.filter(t => t !== text);
-            localStorage.setItem("tasks", JSON.stringify(tasks));
+            tasks.splice(index, 1); // Izdzēš konkrēto elementu pēc indeksa
+            saveAndRender();
         };
 
         taskList.appendChild(li);
-    }</script>
+    }
+</script>
 
 </body>
 </html>
